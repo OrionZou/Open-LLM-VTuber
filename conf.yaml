@@ -14,12 +14,12 @@ LLM_PROVIDER: "ollama"
 # Ollama & OpenAI Compatible inference backend
 ollama:
   # BASE_URL: "http://localhost:11434"
-  BASE_URL: "http://localhost:11434/v1"
-  LLM_API_KEY: "somethingelse"
+  BASE_URL: "http://14.103.158.33:15000/v1"
+  LLM_API_KEY: "token-abc123"
   ORGANIZATION_ID: "org_eternity"
   PROJECT_ID: "project_glass"
   ## LLM name
-  MODEL: "qwen2.5:latest"
+  MODEL: "/models/openbuddy"
   # system prompt is at the very end of this file
   VERBOSE: False
 
@@ -82,8 +82,8 @@ memgpt:
 
 # ============== Live2D front-end Settings ==============
 
-LIVE2D: False # Deprecated and useless now. Do not enable it. Bad things will happen.
-LIVE2D_MODEL: "shizuku-local"
+LIVE2D: True # Deprecated and useless now. Do not enable it. Bad things will happen.
+LIVE2D_MODEL: "chun"
 
 #  ============== Voice Interaction Settings ==============
 
@@ -93,7 +93,7 @@ VOICE_INPUT_ON: True
 MIC_IN_BROWSER: False # Deprecated and useless now. Do not enable it. Bad things will happen.
 
 # speech to text model options: "Faster-Whisper", "WhisperCPP", "Whisper", "AzureASR", "FunASR", "GroqWhisperASR"
-ASR_MODEL: "Faster-Whisper"
+ASR_MODEL: "FunASR"
 
 AzureASR:
   api_key: "azure_api_key"
