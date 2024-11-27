@@ -18,9 +18,6 @@
 					"File": "motion/haru_g_m01.motion3.json"
 				},
 				{
-					"File": "motion/haru_g_m02.motion3.json"
-				},
-				{
 					"File": "motion/haru_g_m03.motion3.json"
 				},
 				{
@@ -91,6 +88,11 @@
 				},
 				{
 					"File": "motion/haru_g_m26.motion3.json"
+				}
+			],
+			"Idle": [
+				{
+					"File": "motion/haru_g_m02.motion3.json"
 				}
 			]
 		}
