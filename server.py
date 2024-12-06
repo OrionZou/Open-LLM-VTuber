@@ -170,7 +170,7 @@ class WebSocketServer:
         async def websocket_endpoint(websocket: WebSocket):
             await websocket.accept()
             await websocket.send_text(
-                json.dumps({"type": "full-text", "text": "Connection established"})
+                json.dumps({"type": "full-text", "text": "连接建立"})
             )
 
             self.connected_clients.append(websocket)

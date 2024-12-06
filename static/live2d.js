@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   pointerInteractionBtn.addEventListener('click', function () {
     window.pointerInteractionEnabled = !window.pointerInteractionEnabled;
-    pointerInteractionBtn.textContent = window.pointerInteractionEnabled ? "👀 Pointer Interactive On" : "❌ Pointer Interactive Off";
+    pointerInteractionBtn.textContent = window.pointerInteractionEnabled ? "👀 指针交互打开" : "❌ 指针交互关闭";
     model2.interactive = window.pointerInteractionEnabled;
     if (!window.pointerInteractionEnabled) {
       // attempt to reset the pointer interaction

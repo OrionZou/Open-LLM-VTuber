@@ -33,18 +33,18 @@
 
 <body>
     <div class="top-left">
-        <button id="wsStatus">Disconnected</button>
-        <button id="stateDisplay">Status: loading</button>
-        <button id="pointerInteractionBtn">👀 Pointer Interactive On</button>
-        <input type="text" id="wsUrl" placeholder="WebSocket URL">
+        <button id="wsStatus">断开连接</button>
+        <button id="stateDisplay">状态: 加载中</button>
+        <button id="pointerInteractionBtn">👀 指针交互打开</button>
+        <input type="text" id="wsUrl" placeholder="WebSocket URL" style="display: none;">
         <div class="sensitivity-container">
-            <span class="sensitivity-label">Speech Prob. Threshold:</span>
+            <span class="sensitivity-label">语音概率阈值:</span>
             <input type="number" id="speechProbThreshold" min="1" max="100" value="97" title="Speech Detection Confidence Level Threshold (%)">
         </div>
-        <select id="configDropdown" aria-label="Configuration Selection">
+        <select id="configDropdown" aria-label="Configuration Selection" style="display: none;">
             <option value="">Select Configuration</option>
         </select>
-        <select id="bgDropdown" aria-label="Background Selection">
+        <select id="bgDropdown" aria-label="Background Selection" style="display: none;">
             <option value="">Select Background</option>
         </select>
     </div>
@@ -57,9 +57,9 @@
             <input type="text" id="textInput" class="hidden" placeholder="Type your message here...">
         </div>
         <div class="control-buttons">
-            <button id="micToggle">🎙️Mic is On</button>
-            <button id="interruptBtn">❌Voice Interruption Off</button>
-            <button id="sendText">📝Show Text Input</button>
+            <button id="micToggle">🎙️麦克风开启</button>
+            <button id="interruptBtn">❌语音中断关闭</button>
+            <button id="sendText">📝文本输入打开</button>
         </div>
     </div>
 
@@ -70,7 +70,7 @@
         // idle: When the LLM is not thinking or speaking and is waiting for user input.
         // thinking-speaking: When the LLM is thinking or speaking.
         // interrupted: When the LLM is interrupted by the user.
-        let state = "idle"; // idle, thinking-speaking, interrupted
+        let state = "空闲"; // idle, thinking-speaking, interrupted
         let audioPlayer = new Audio();
         let voiceInterruptionOn = false;
         let fullResponse = ""; // full response from the server in one conversation chain
@@ -78,7 +78,7 @@
         const stateDisplay = document.getElementById('stateDisplay');
 
         function updateStateDisplay() {
-            stateDisplay.textContent = `Status: ${state}`;
+            stateDisplay.textContent = `状态: ${state}`;
         }
 
         function setState(newState) {
@@ -90,7 +90,7 @@
             console.log("😡👎 Interrupting conversation chain");
             console.log("Sending: " + JSON.stringify({ type: "interrupt-signal", text: fullResponse }))
             ws.send(JSON.stringify({ type: "interrupt-signal", text: fullResponse }));
-            setState("interrupted");
+            setState("disconnected");
             model2.stopSpeaking();
             audioTaskQueue.clearQueue();
             console.log("Interrupted!!!!");
@@ -134,8 +134,8 @@
                 },
                 onVADMisfire: () => {
                     console.log("VAD Misfire. The LLM can't hear you.");
-                    if (state === "interrupted") {
-                        state = "idle";
+                    if (state === "中断") {
+                        state = "空闲";
                     }
                     document.getElementById("message").textContent = "The LLM can't hear you.";
                 },
@@ -206,9 +206,9 @@
 
             ws.onopen = function () {
                 // interrupted = false;
-                setState("idle");
+                setState("空闲");
                 console.log("Connected to WebSocket");
-                wsStatus.textContent = "Connected";
+                wsStatus.textContent = "connected";
                 wsStatus.classList.add('connected');
                 fetchConfigurations();
                 fetchBackgrounds();
@@ -216,9 +216,9 @@
 
             ws.onclose = function () {
                 // interrupt = false;
-                setState("idle");
+                setState("空闲");
                 console.log("Disconnected from WebSocket");
-                wsStatus.textContent = "Disconnected";
+                wsStatus.textContent = "disconnected";
                 wsStatus.classList.remove('connected');
                 taskQueue.clearQueue();
             };
@@ -247,12 +247,12 @@
                             stop_mic();
                             break;
                         case "conversation-chain-start":
-                            setState("thinking-speaking");
+                            setState("思考...讲话...");
                             fullResponse = "";
                             audioTaskQueue = new TaskQueue(20);
                             break;
                         case "conversation-chain-end":
-                            setState("idle");
+                            setState("空闲");   
                             if (!voiceInterruptionOn) {
                                 start_mic();
                             }
@@ -266,7 +266,7 @@
                     setMouth(Number(message.text));
                     break;
                 case "audio":
-                    if (state == "interrupted") {
+                    if (state == "中断") {
                         console.log("Audio playback intercepted. Sentence:", message.text);
                     } else {
                         addAudioTask(message.audio, message.volumes, message.slice_length, message.text, message.expressions);
@@ -288,7 +288,7 @@
                 case "config-switched":
                     console.log(message.message);
                     document.getElementById("message").textContent = "Configuration switched successfully!";
-                    setState("idle");
+                    setState("空闲");
 
                     // restore the mic state before switching config
                     if (micStateBeforeConfigSwitch) {
@@ -459,11 +459,11 @@
                 console.log("Mic start");
                 await myvad.start();
                 micToggleState = true;
-                micToggle.textContent = "🎙️Mic is On";
+                micToggle.textContent = "🎙️麦克风开启";
             } catch (error) {
                 console.error("Failed to start microphone:", error);
                 micToggleState = false;
-                micToggle.textContent = "❌Mic is off";
+                micToggle.textContent = "❌麦克风关闭";
             }
         }
 
@@ -473,12 +473,12 @@
                 myvad.pause();
             }
             micToggleState = false;
-            micToggle.textContent = "❌Mic is off";
+            micToggle.textContent = "❌麦克风关闭";
         }
 
         interruptBtn.addEventListener('click', function () {
             voiceInterruptionOn = !voiceInterruptionOn;
-            interruptBtn.textContent = voiceInterruptionOn ? "🖐️Voice Interruption On" : "❌Voice Interruption Off";
+            interruptBtn.textContent = voiceInterruptionOn ? "🖐️语音中断开启" : "❌语音中断关闭";
         });
 
         let micToggleState = true;
@@ -515,7 +515,7 @@
         sendText.addEventListener('click', function() {
             textInputVisible = !textInputVisible;
             textInput.classList.toggle('hidden');
-            sendText.textContent = textInputVisible ? "📝Hide Text Input" : "📝Show Text Input";
+            sendText.textContent = textInputVisible ? "📝文本输入隐藏" : "📝文本输入打开";
         });
 
         // send text when enter is pressed
