@@ -22,12 +22,12 @@ LLM_PROVIDER: "ollama"
 # Ollama & OpenAI Compatible inference backend
 ollama:
   # BASE_URL: "http://localhost:11434"
-  BASE_URL: "http://localhost:11434/v1"
-  LLM_API_KEY: "somethingelse"
+  BASE_URL: "http://14.103.158.33:15000/v1"
+  LLM_API_KEY: "token-abc123"
   ORGANIZATION_ID: "org_eternity"
   PROJECT_ID: "project_glass"
   ## LLM name
-  MODEL: "qwen2.5:latest"
+  MODEL: "/models/openbuddy"
   # system prompt is at the very end of this file
   VERBOSE: False
 
@@ -90,8 +90,8 @@ memgpt:
 
 # ============== Live2D front-end Settings ==============
 
-LIVE2D: False # Deprecated and useless now. Do not enable it. Bad things will happen.
-LIVE2D_MODEL: "shizuku-local"
+LIVE2D: True # Deprecated and useless now. Do not enable it. Bad things will happen.
+LIVE2D_MODEL: "chun"
 
 #  ============== Voice Interaction Settings ==============
 
@@ -175,7 +175,7 @@ barkTTS:
 edgeTTS:
   # Check out doc at https://github.com/rany2/edge-tts
   # Use `edge-tts --list-voices` to list all available voices
-  voice: "en-US-AvaMultilingualNeural" #"zh-CN-XiaoxiaoNeural" # "ja-JP-NanamiNeural"
+  voice: "zh-CN-XiaoxiaoNeural" # "en-US-AvaMultilingualNeural" #"zh-CN-XiaoxiaoNeural" # "ja-JP-NanamiNeural"
 
 # pyttsx3 doesn't have any config.
 
@@ -276,8 +276,8 @@ MEMORY_SNAPSHOT: True
 # Name of the persona you want to use. 
 # All persona files are stored as txt in 'prompts/persona' directory. 
 # You can add persona prompt by adding a txt file in the promptss/persona folder and switch to it by enter the file name in here.
-# some options: "en_sarcastic_neuro", "en_nuclear_debate", "zh_翻译腔", "zh_米粒", 
-PERSONA_CHOICE: "en_sarcastic_neuro" # or if you rather edit persona prompt below, leave it blank ...
+# some options: "en_sarcastic_neuro", "zh_翻译腔"
+PERSONA_CHOICE: "zh_教师" # or if you rather edit persona prompt below, leave it blank ...
 
 # This prompt will be used instead if the PERSONA_CHOICE is empty
 DEFAULT_PERSONA_PROMPT_IN_YAML: |
