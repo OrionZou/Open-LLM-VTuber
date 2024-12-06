@@ -16,8 +16,19 @@ REMOVE_SPECIAL_CHAR: True # remove special characters like emoji from audio gene
 
 # Provider of LLM. Options available: "ollama", "memgpt", "mem0", "claude" 
 #   (or "fakellm for debug purposes")
+LLM_PROVIDER: "db_gpt"
+
+db_gpt:
+  BASE_URL: "http://127.0.0.1:5670/api/v2"
+  LLM_API_KEY: "dbgpt"
+  MODEL: "/models/openbuddy"
+  CHAT_MODEL: "chat_knowledge"
+  SPACE_NAME: "edu_lib_v1"
+  # system prompt is at the very end of this file
+  VERBOSE: False
+
 # "ollama" for any OpenAI Compatible backend. "memgpt" requires setup
-LLM_PROVIDER: "ollama"
+# LLM_PROVIDER: "ollama"
 
 # Ollama & OpenAI Compatible inference backend
 ollama:

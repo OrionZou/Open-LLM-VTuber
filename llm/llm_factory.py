@@ -4,9 +4,11 @@ from .ollama import LLM as OllamaLLM
 from .memGPT import LLM as MemGPTLLM
 from .fake_llm import LLM as FakeLLM
 from .claude import LLM as ClaudeLLM
+from .db_gpt import LLM as DBGPTLLM
 
 
 class LLMFactory:
+
     @staticmethod
     def create_llm(llm_provider, **kwargs) -> Type[LLMInterface]:
 
@@ -22,17 +24,15 @@ class LLMFactory:
             )
         elif llm_provider == "mem0":
             from llm.mem0_llm import LLM as Mem0LLM
-            return Mem0LLM(
-                user_id=kwargs.get("USER_ID"),
-                system=kwargs.get("SYSTEM_PROMPT"),
-                base_url=kwargs.get("BASE_URL"),
-                model=kwargs.get("MODEL"),
-                llm_api_key=kwargs.get("LLM_API_KEY"),
-                project_id=kwargs.get("PROJECT_ID"),
-                organization_id=kwargs.get("ORGANIZATION_ID"),
-                mem0_config=kwargs.get("MEM0_CONFIG"),
-                verbose=kwargs.get("VERBOSE", False)
-            )
+            return Mem0LLM(user_id=kwargs.get("USER_ID"),
+                           system=kwargs.get("SYSTEM_PROMPT"),
+                           base_url=kwargs.get("BASE_URL"),
+                           model=kwargs.get("MODEL"),
+                           llm_api_key=kwargs.get("LLM_API_KEY"),
+                           project_id=kwargs.get("PROJECT_ID"),
+                           organization_id=kwargs.get("ORGANIZATION_ID"),
+                           mem0_config=kwargs.get("MEM0_CONFIG"),
+                           verbose=kwargs.get("VERBOSE", False))
         elif llm_provider == "memgpt":
             return MemGPTLLM(
                 base_url=kwargs.get("BASE_URL"),
@@ -50,6 +50,15 @@ class LLMFactory:
             )
         elif llm_provider == "fakellm":
             return FakeLLM()
+        elif llm_provider == "db_gpt":
+            return DBGPTLLM(
+                chat_model=kwargs.get("CHAT_MODEL"),
+                space_name=kwargs.get("SPACE_NAME"),
+                base_url=kwargs.get("BASE_URL"),
+                model=kwargs.get("MODEL"),
+                llm_api_key=kwargs.get("LLM_API_KEY"),
+                verbose=kwargs.get("VERBOSE", False),
+            )
         else:
             raise ValueError(f"Unsupported LLM provider: {llm_provider}")
 

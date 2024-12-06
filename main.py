@@ -86,7 +86,8 @@ class OpenLLMVTuberMain:
         self.translator: TranslateInterface | None
         if self.config.get("TRANSLATE_AUDIO", False):
             try:
-                translate_provider = self.config.get("TRANSLATE_PROVIDER", "DeepLX")
+                translate_provider = self.config.get("TRANSLATE_PROVIDER",
+                                                     "DeepLX")
                 self.translator = TranslateFactory.get_translator(
                     translate_provider=translate_provider,
                     **self.config.get(translate_provider, {}),
@@ -119,9 +120,9 @@ class OpenLLMVTuberMain:
         llm_config = self.config.get(llm_provider, {})
         system_prompt = self.get_system_prompt()
 
-        llm = LLMFactory.create_llm(
-            llm_provider=llm_provider, SYSTEM_PROMPT=system_prompt, **llm_config
-        )
+        llm = LLMFactory.create_llm(llm_provider=llm_provider,
+                                    SYSTEM_PROMPT=system_prompt,
+                                    **llm_config)
         return llm
 
     def init_asr(self) -> ASRInterface:
@@ -136,8 +137,8 @@ class OpenLLMVTuberMain:
         return TTSFactory.get_tts_engine(tts_model, **tts_config)
 
     def set_audio_output_func(
-        self, audio_output_func: Callable[[Optional[str], Optional[str]], None]
-    ) -> None:
+        self, audio_output_func: Callable[[Optional[str], Optional[str]],
+                                          None]) -> None:
         """
         Set the audio output function to be used for playing audio files.
         The function should accept two arguments: sentence (str) and filepath (str).
@@ -174,15 +175,14 @@ class OpenLLMVTuberMain:
         """
         if self.config.get("PERSONA_CHOICE"):
             system_prompt = prompt_loader.load_persona(
-                self.config.get("PERSONA_CHOICE")
-            )
+                self.config.get("PERSONA_CHOICE"))
         else:
             system_prompt = self.config.get("DEFAULT_PERSONA_PROMPT_IN_YAML")
 
         if self.live2d is not None:
             system_prompt += prompt_loader.load_util(
-                self.config.get("LIVE2D_Expression_Prompt")
-            ).replace("[<insert_emomap_keys>]", self.live2d.emo_str)
+                self.config.get("LIVE2D_Expression_Prompt")).replace(
+                    "[<insert_emomap_keys>]", self.live2d.emo_str)
 
         if self.verbose:
             print("\n === System Prompt ===")
@@ -192,7 +192,8 @@ class OpenLLMVTuberMain:
 
     # Main conversation methods
 
-    def conversation_chain(self, user_input: str | np.ndarray | None = None) -> str:
+    def conversation_chain(self,
+                           user_input: str | np.ndarray | None = None) -> str:
         """
         One iteration of the main conversation.
         1. Get user input (text or audio) if not provided as an argument
@@ -207,15 +208,14 @@ class OpenLLMVTuberMain:
         """
 
         if not self._continue_exec_flag.wait(
-            timeout=self.EXEC_FLAG_CHECK_TIMEOUT
+                timeout=self.EXEC_FLAG_CHECK_TIMEOUT
         ):  # Wait for the flag to be set
             print(
                 ">> Execution flag not set. In interruption state for too long. Resetting the flag and exiting the conversation chain."
             )
             self._continue_exec_flag.set()
             raise InterruptedError(
-                "Conversation chain interrupted. Wait flag timeout reached."
-            )
+                "Conversation chain interrupted. Wait flag timeout reached.")
 
         # Generate a random number between 0 and 3
         color_code = random.randint(0, 3)
@@ -231,12 +231,15 @@ class OpenLLMVTuberMain:
 
         # if user_input is not string, make it string
         if user_input is None:
+            print("debug flag")       
             user_input = self.get_user_input()
+            print("user_input: ", user_input)
         elif isinstance(user_input, np.ndarray):
             print("transcribing...")
             user_input = self.asr.transcribe_np(user_input)
 
-        if user_input.strip().lower() == self.config.get("EXIT_PHRASE", "exit").lower():
+        if user_input.strip().lower() == self.config.get(
+                "EXIT_PHRASE", "exit").lower():
             print("Exiting...")
             exit()
 
@@ -314,7 +317,8 @@ class OpenLLMVTuberMain:
 
         return full_response
 
-    def _generate_audio_file(self, sentence: str, file_name_no_ext: str) -> str | None:
+    def _generate_audio_file(self, sentence: str,
+                             file_name_no_ext: str) -> str | None:
         """
         Generate an audio file from the given sentence using the TTS engine.
 
@@ -337,9 +341,11 @@ class OpenLLMVTuberMain:
         if sentence.strip() == "":
             return None
 
-        return self.tts.generate_audio(sentence, file_name_no_ext=file_name_no_ext)
+        return self.tts.generate_audio(sentence,
+                                       file_name_no_ext=file_name_no_ext)
 
-    def _play_audio_file(self, sentence: str | None, filepath: str | None) -> None:
+    def _play_audio_file(self, sentence: str | None,
+                         filepath: str | None) -> None:
         """
         Play the audio file either locally or remotely using the Live2D controller if available.
 
@@ -400,19 +406,15 @@ class OpenLLMVTuberMain:
 
                             tts_target_sentence = audio_filter(
                                 tts_target_sentence,
-                                translator=(
-                                    self.translator
-                                    if self.config.get("TRANSLATE_AUDIO", False)
-                                    else None
-                                ),
+                                translator=(self.translator if self.config.get(
+                                    "TRANSLATE_AUDIO", False) else None),
                                 remove_special_char=self.config.get(
-                                    "REMOVE_SPECIAL_CHAR", True
-                                ),
+                                    "REMOVE_SPECIAL_CHAR", True),
                             )
 
                             audio_filepath = self._generate_audio_file(
-                                tts_target_sentence, file_name_no_ext=uuid.uuid4()
-                            )
+                                tts_target_sentence,
+                                file_name_no_ext=uuid.uuid4())
 
                             if not self._continue_exec_flag.is_set():
                                 raise InterruptedError("Producer interrupted")
@@ -430,8 +432,7 @@ class OpenLLMVTuberMain:
                         raise InterruptedError("Producer interrupted")
                     print("\n")
                     audio_filepath = self._generate_audio_file(
-                        sentence_buffer, file_name_no_ext=uuid.uuid4()
-                    )
+                        sentence_buffer, file_name_no_ext=uuid.uuid4())
                     audio_info = {
                         "sentence": sentence_buffer,
                         "audio_filepath": audio_filepath,
@@ -461,8 +462,7 @@ class OpenLLMVTuberMain:
                         raise InterruptedError("😱Consumer interrupted")
 
                     audio_info = task_queue.get(
-                        timeout=0.1
-                    )  # Short timeout to check for interrupts
+                        timeout=0.1)  # Short timeout to check for interrupts
                     if audio_info is None:
                         break  # End of production
                     if audio_info:
@@ -496,8 +496,7 @@ class OpenLLMVTuberMain:
         if interrupted_error_event.is_set():
             self._interrupt_post_processing()
             raise InterruptedError(
-                "Conversation chain interrupted: consumer model interrupted"
-            )
+                "Conversation chain interrupted: consumer model interrupted")
 
         print("\n\n --- Audio generation and playback completed ---")
         return full_response[0]
@@ -574,7 +573,8 @@ class OpenLLMVTuberMain:
             "～",
             "！",
         ]
-        return any(text.strip().endswith(punct) for punct in punctuation_blacklist)
+        return any(text.strip().endswith(punct)
+                   for punct in punctuation_blacklist)
 
     def clean_cache(self):
         cache_dir = "./cache"
@@ -611,7 +611,8 @@ class OpenLLMVTuberMain:
         """
         if self.config.get("TRANSLATE_AUDIO", False):
             try:
-                translate_provider = self.config.get("TRANSLATE_PROVIDER", "DeepLX")
+                translate_provider = self.config.get("TRANSLATE_PROVIDER",
+                                                     "DeepLX")
                 translator = TranslateFactory.get_translator(
                     translate_provider=translate_provider,
                     **self.config.get(translate_provider, {}),
@@ -683,8 +684,7 @@ def load_config_with_env(path) -> dict:
         raise
 
 
-if __name__ == "__main__":
-
+def main():
     logger.add(sys.stderr, level="DEBUG")
 
     config = load_config_with_env("conf.yaml")
@@ -709,3 +709,8 @@ if __name__ == "__main__":
         except InterruptedError as e:
             print(f"😢Conversation was interrupted. {e}")
             continue
+
+
+if __name__ == "__main__":
+
+    main()
