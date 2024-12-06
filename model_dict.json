@@ -137,5 +137,26 @@
             "sadness": 1,
             "surprise": 3
         }
+    },
+    {
+        "name": "chun_cheng",
+        "description": "chun",
+        "url": "/live2d-models/haru_greeter_pro_jp_cheng/runtime/haru_greeter_t05.model3.json",
+        "kScale": 0.00055,
+        "initialXshift": -100,
+        "initialYshift": 800,
+        "kXOffset": 0,
+        "kYOffset": 0,
+        "idleMotionGroupName": "Idle",
+        "emotionMap": {
+            "neutral": 0,
+            "anger": 2,
+            "disgust": 2,
+            "fear": 1,
+            "joy": 3,
+            "smirk": 3,
+            "sadness": 1,
+            "surprise": 3
+        }
     }
 ]
