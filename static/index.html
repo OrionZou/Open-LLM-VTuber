@@ -137,7 +137,7 @@
                     if (state === "中断") {
                         state = "空闲";
                     }
-                    document.getElementById("message").textContent = "The LLM can't hear you.";
+                    document.getElementById("message").textContent = "[Warning] 我听不到你讲话...";
                 },
                 onSpeechEnd: (audio) => {
                     // audio: (Float32Array of audio samples at sample rate 16000)...
