@@ -70,7 +70,7 @@
         // idle: When the LLM is not thinking or speaking and is waiting for user input.
         // thinking-speaking: When the LLM is thinking or speaking.
         // interrupted: When the LLM is interrupted by the user.
-        let state = "空闲"; // idle, thinking-speaking, interrupted
+        let state = "idle"; // idle, thinking-speaking, interrupted
         let audioPlayer = new Audio();
         let voiceInterruptionOn = false;
         let fullResponse = ""; // full response from the server in one conversation chain
@@ -90,7 +90,7 @@
             console.log("😡👎 Interrupting conversation chain");
             console.log("Sending: " + JSON.stringify({ type: "interrupt-signal", text: fullResponse }))
             ws.send(JSON.stringify({ type: "interrupt-signal", text: fullResponse }));
-            setState("disconnected");
+            setState("interrupted");
             model2.stopSpeaking();
             audioTaskQueue.clearQueue();
             console.log("Interrupted!!!!");
@@ -134,8 +134,8 @@
                 },
                 onVADMisfire: () => {
                     console.log("VAD Misfire. The LLM can't hear you.");
-                    if (state === "中断") {
-                        state = "空闲";
+                    if (state === "interrupted") {
+                        state = "idle";
                     }
                     document.getElementById("message").textContent = "[Warning] 我听不到你讲话...";
                 },
@@ -206,7 +206,7 @@
 
             ws.onopen = function () {
                 // interrupted = false;
-                setState("空闲");
+                setState("idle");
                 console.log("Connected to WebSocket");
                 wsStatus.textContent = "connected";
                 wsStatus.classList.add('connected');
@@ -216,7 +216,7 @@
 
             ws.onclose = function () {
                 // interrupt = false;
-                setState("空闲");
+                setState("idle");
                 console.log("Disconnected from WebSocket");
                 wsStatus.textContent = "disconnected";
                 wsStatus.classList.remove('connected');
@@ -252,7 +252,7 @@
                             audioTaskQueue = new TaskQueue(20);
                             break;
                         case "conversation-chain-end":
-                            setState("空闲");   
+                            setState("idle");   
                             if (!voiceInterruptionOn) {
                                 start_mic();
                             }
@@ -266,7 +266,7 @@
                     setMouth(Number(message.text));
                     break;
                 case "audio":
-                    if (state == "中断") {
+                    if (state == "interrupted") {
                         console.log("Audio playback intercepted. Sentence:", message.text);
                     } else {
                         addAudioTask(message.audio, message.volumes, message.slice_length, message.text, message.expressions);
@@ -288,7 +288,7 @@
                 case "config-switched":
                     console.log(message.message);
                     document.getElementById("message").textContent = "Configuration switched successfully!";
-                    setState("空闲");
+                    setState("idle");
 
                     // restore the mic state before switching config
                     if (micStateBeforeConfigSwitch) {
