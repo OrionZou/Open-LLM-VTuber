@@ -23,7 +23,7 @@ db_gpt:
   LLM_API_KEY: "dbgpt"
   MODEL: "/models/openbuddy"
   CHAT_MODEL: "chat_knowledge"
-  SPACE_NAME: "edu_lib_v1"
+  SPACE_NAME: "edu_lib_v2-2"
   # system prompt is at the very end of this file
   VERBOSE: False
 

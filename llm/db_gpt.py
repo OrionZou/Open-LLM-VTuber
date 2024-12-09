@@ -98,8 +98,10 @@ class LLM(LLMInterface):
         chat_completion_itertor = AsyncToSyncIterator(
             self.client.chat_stream(model=self.model,
                                     messages=prompt,
-                                    chat_model=self.chat_model,
-                                    chat_param=self.space_name))
+                                    chat_mode=self.chat_model,
+                                    chat_param=self.space_name,
+                                    temperature=0.5
+                                    ))
 
         complete_response = ""
         for chunk in chat_completion_itertor:
