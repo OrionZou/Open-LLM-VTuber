@@ -231,7 +231,7 @@ class OpenLLMVTuberMain:
 
         # if user_input is not string, make it string
         if user_input is None:
-            print("debug flag")       
+            print("debug flag")
             user_input = self.get_user_input()
             print("user_input: ", user_input)
         elif isinstance(user_input, np.ndarray):
@@ -402,8 +402,8 @@ class OpenLLMVTuberMain:
                                 print("\n")
                             if not self._continue_exec_flag.is_set():
                                 raise InterruptedError("Producer interrupted")
-                            tts_target_sentence = sentence_buffer
-
+                            tts_target_sentence = self.md_filtered(
+                                sentence_buffer)
                             tts_target_sentence = audio_filter(
                                 tts_target_sentence,
                                 translator=(self.translator if self.config.get(
@@ -419,7 +419,7 @@ class OpenLLMVTuberMain:
                             if not self._continue_exec_flag.is_set():
                                 raise InterruptedError("Producer interrupted")
                             audio_info = {
-                                "sentence": sentence_buffer,
+                                "sentence": tts_target_sentence,
                                 "audio_filepath": audio_filepath,
                             }
                             task_queue.put(audio_info)
@@ -428,13 +428,15 @@ class OpenLLMVTuberMain:
 
                 # Handle any remaining text in the buffer
                 if sentence_buffer:
+                    tts_target_sentence = self.md_filtered(
+                                sentence_buffer)
                     if not self._continue_exec_flag.is_set():
                         raise InterruptedError("Producer interrupted")
                     print("\n")
                     audio_filepath = self._generate_audio_file(
-                        sentence_buffer, file_name_no_ext=uuid.uuid4())
+                        tts_target_sentence, file_name_no_ext=uuid.uuid4())
                     audio_info = {
-                        "sentence": sentence_buffer,
+                        "sentence": tts_target_sentence,
                         "audio_filepath": audio_filepath,
                     }
                     task_queue.put(audio_info)
@@ -527,7 +529,6 @@ class OpenLLMVTuberMain:
         text: str
             the text to check
         """
-
         white_list = [
             "...",
             "Dr.",
@@ -560,21 +561,28 @@ class OpenLLMVTuberMain:
                 return False
 
         punctuation_blacklist = [
-            ".",
-            "?",
-            "!",
-            "。",
-            "；",
-            "？",
-            "！",
-            "…",
-            "〰",
-            "〜",
-            "～",
-            "！",
+            ".", "?", "!", "。", "；", "？", "！", "…", "〰", "〜", "～", "！"
         ]
         return any(text.strip().endswith(punct)
-                   for punct in punctuation_blacklist)
+                   for punct in punctuation_blacklist) or len(text) > 50
+
+    def md_filtered(self, text: str):
+        print(f"before_text:{text}")
+        # 移除 Markdown 星号 (*)
+        text = text.replace('*', '')
+        # 标准化换行符为单一格式（避免 \r\n 的干扰）
+        text = text.replace('\r\n', '\n').replace('\r', '\n')
+        # 移除所有剩余的换行符 (\n)，替换为空格
+        text = text.replace('\n', '')
+        # 移除 Markdown 的加粗和斜体 (**text**, *text*, __text__, _text_)
+        text = re.sub(r'(\*\*|\*|__|_)(.*?)\1', r'\2', text)
+        # 移除 Markdown 标题 (# 开头的行)
+        text = re.sub(r'^#+\s', '', text, flags=re.MULTILINE)
+        # 移除多余的空格
+        text = re.sub(r'\s+', ' ', text).strip()
+        print(f"atfer_text:{text}")
+
+        return text
 
     def clean_cache(self):
         cache_dir = "./cache"
