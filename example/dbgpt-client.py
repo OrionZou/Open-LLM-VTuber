@@ -36,15 +36,18 @@ def chat_knowledge_lib():
     chat_completion = client.chat_stream(model=LLM_MODEL,
                                          messages="介绍下 杭州市闻涛小学",
                                          chat_mode=CHAT_MODEL,
-                                         chat_param=SPACE_NAME)
+                                         chat_param=SPACE_NAME,
+                                         )
     # async for data in chat_completion:
     #     print(data.choices[0].delta.content)
     response = ""
     for data in AsyncToSyncIterator(chat_completion):
         # print(data.choices[0].delta.content)
+        if len(data.choices[0].delta.content)>50:
+            break
         response += data.choices[0].delta.content
     print(response)
-
+ 
 
 
 

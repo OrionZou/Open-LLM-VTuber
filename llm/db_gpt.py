@@ -94,19 +94,22 @@ class LLM(LLMInterface):
         #     print(" -- Prompt: " + prompt + "\n\n")
 
         chat_completion = []
-
-        chat_completion_itertor = AsyncToSyncIterator(
-            self.client.chat_stream(model=self.model,
-                                    messages=prompt,
-                                    chat_mode=self.chat_model,
-                                    chat_param=self.space_name,
-                                    temperature=0.5
-                                    ))
-
-        complete_response = ""
-        for chunk in chat_completion_itertor:
-            yield chunk.choices[0].delta.content
-            complete_response += chunk.choices[0].delta.content
+        try:
+            chat_completion_itertor = AsyncToSyncIterator(
+                self.client.chat_stream(model=self.model,
+                                        messages=prompt,
+                                        chat_mode=self.chat_model,
+                                        chat_param=self.space_name,
+                                        temperature=0.5))
+            complete_response = ""
+            for chunk in chat_completion_itertor:
+                if len(chunk.choices[0].delta.content)>50:
+                    break
+                yield chunk.choices[0].delta.content
+                complete_response += chunk.choices[0].delta.content
+        except Exception as e:
+            print("Error calling the chat endpoint: " + str(e))
+            return "Error calling the chat endpoint: " + str(e)
 
         # self.memory.put({
         #     "role": "assistant",
